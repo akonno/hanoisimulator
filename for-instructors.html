@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1"/>
+		<title>For Instructors | Hanoi Simulator</title>
+		<style>
+			body { margin: 0; }
+		</style>
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+		<link rel ="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+	</head>
+	<body>
+        <section class="hero">
+            <div class="hero-body">
+                <h1 class="title">
+                    For Instructors | The Tower of Hanoi Simulator
+                </h1>
+            </div>
+        </section>
+        <section class="section">
+            <!-- <div class="block"> -->
+                <h2 class="subtitle">For instructors</h2>
+                <p class="content">
+                    This simulator was developed for instructors who teach programming.
+                </p>
+                <p class="content">
+                    Suppose you are an instructor teaching programming and want to teach your students about the concept of recursive calls. You might want them to solve the famous puzzle '<a href="https://en.wikipedia.org/wiki/Tower_of_Hanoi" target="_blank" rel="noopener noreferrer">Tower of Hanoi</a>', which utilizes the idea of recursion. However, while you can teach the concept of the Tower of Hanoi, it might be challenging to make the class appealing to students who are just beginning to learn programming, as replicating the movement of discs in the Tower of Hanoi on a screen requires extensive knowledge beyond just recursion.
+                </p>
+                <p class="content">
+                    This 'Hanoi Simulator' is a program that moves the discs of the 'Tower of Hanoi' according to given instructions. The simulator itself does not have the functionality to solve the Tower of Hanoi puzzle. (However, it does come with initial instructions to move three discs.) You will have your students write a program that outputs instructions for moving the discs in the Tower of Hanoi. Then, by executing these outputs in this simulator, you can visually confirm through animation whether the 'Tower of Hanoi' has been solved correctly.
+                </p>
+                <h3 class="subtitle is-6 is-italic">Using the Simulator in Classrooms</h3>
+                <p class="content">
+                    In the class, students will output a set of instructions to move the discs of the Tower of Hanoi using their own programs. They will then copy and paste these instructions into the Hanoi Simulator to solve the Tower of Hanoi puzzle.
+                    Instructors can quickly verify the result visually (e.g., via an on-screen state or a screenshot).
+                </p>
+            <!-- </div> -->
+            <!-- <div class="block"> -->
+                <h2 class="subtitle is-6 is-italic">How to change the number of discs</h2>
+                <p class="content">If you want students to attempt puzzles with more or fewer discs, you can set the number of discs by specifying it in the "numDiscs" URL parameter.</p>
+                <ul class="content">
+                    <li><a href="./?numDiscs=5">5 discs</a></li>
+                    <li><a href="./?numDiscs=6">6 discs</a></li>
+                    <li><a href="./?numDiscs=7">7 discs</a> (default)</li>
+                    <li><a href="./?numDiscs=8">8 discs</a></li>
+                    <li><a href="./?numDiscs=9">9 discs</a></li>
+                    <li><a href="./?numDiscs=10">10 discs</a></li>
+                </ul>
+            <!-- </div> -->
+            <p class="content">
+                Note that moving a large number of discs took a significant amount of time. In my environment, transferring 7 discs from one pillar to another took over 6 minutes, and moving 10 discs required more than 51 minutes.
+                This is expected because the required number of moves grows exponentially with the number of discs.
+            </p>
+		</section>
+        <section class="section">
+        <div class="block">
+            <h2 class="subtitle">Optional Support</h2>
+            <p class="content">
+            This simulator is provided freely for educational use.
+            </p>
+            <p class="content">
+            If you find it useful in your teaching and would like to support the author’s work on open educational tools, you may do so here:
+            <a href="https://ko-fi.com/akonno" target="_blank" rel="noopener noreferrer">Ko-fi</a>.
+            </p>
+            <p class="content is-size-7">
+            Support is entirely optional and not required to use this simulator in any classroom setting. It does not imply additional features, services, or obligations.
+            </p>
+        </div>
+        </section>
+        <section class="section">
+            <div class="block">
+                <h2 class="subtitle">Source and Credit</h2>
+                <p>Source: <a href="https://github.com/akonno/hanoisimulator" target="_blank" rel="noopener noreferrer">Hanoi Simulator</a> on <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+                <p>Textures for the floor, discs and pillars by <a href="https://ambientcg.com/" target="_blank" rel="noopener noreferrer">Lennart Demes at ambientCG</a></p>
+                <p><a href="./">Back to Simulator</a></p>
+            </div>
+		</section>
+		<footer class="footer">
+			<div class="content has-text-centered">
+			  <p>
+				<a href="https://github.com/akonno/hanoisimulator" target="_blank" rel="noopener noreferrer"><strong>Hanoi Simulator</strong></a> by KONNO Akihisa
+			  </p>
+			</div>
+		</footer>
+	</body>
+</html>

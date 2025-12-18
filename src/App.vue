@@ -355,32 +355,63 @@ light2.position.y = 4;
 light2.position.z = 10;
 scene.add(light2);
 
+// Texture handling
+function loadTexture(
+  url: string,
+  onLoad: (tex: THREE.Texture) => void,
+  onError?: (err: unknown) => void
+) {
+  const loader = new THREE.TextureLoader();
+  loader.load(
+    url,
+    (tex) => onLoad(tex),
+    undefined,
+    (err) => {
+      console.warn(`[texture] failed to load: ${url}`, err);
+      onError?.(err);
+    }
+  );
+}
+
+
 // Ground
 const groundGeometry = new THREE.BoxGeometry(5000, 0.1, 2200);
-const groundTexture = new THREE.TextureLoader().load(
-	`${import.meta.env.BASE_URL}/textures/PavingStones128/PavingStones128_1K-JPG_Color.jpg`
-);
-groundTexture.wrapS = THREE.RepeatWrapping;
-groundTexture.wrapT = THREE.RepeatWrapping;
-groundTexture.repeat.set(2500, 1100);
-const groundMaterial = new THREE.MeshLambertMaterial({map: groundTexture});
+const groundMaterial = new THREE.MeshLambertMaterial({color: 0xc2c2c2});
 const ground = new THREE.Mesh(groundGeometry, groundMaterial);
 ground.position.y = -0.5*pillarHeight - 0.05;
 scene.add(ground);
 
+loadTexture(
+  `${import.meta.env.BASE_URL}/textures/PavingStones128/PavingStones128_1K-JPG_Color.jpg`,
+  (tex) => {
+	tex.wrapS = THREE.RepeatWrapping;
+	tex.wrapT = THREE.RepeatWrapping;
+	tex.repeat.set(2500, 1100);
+	groundMaterial.map = tex;
+	groundMaterial.color = new THREE.Color(0xffffff);
+	groundMaterial.needsUpdate = true;
+  }
+);
+
 // Sky
 const skyGeometry = new THREE.BoxGeometry(5000, 0.1, 2200);
-const skyTexture = new THREE.TextureLoader().load(
-	`${import.meta.env.BASE_URL}/textures/skytile1.png`
-);
-skyTexture.wrapS = THREE.RepeatWrapping;
-skyTexture.wrapT = THREE.RepeatWrapping;
-skyTexture.repeat.set(20, 8);
-const skyMaterial = new THREE.MeshBasicMaterial({map: skyTexture});
+const skyMaterial = new THREE.MeshBasicMaterial({color: 0xaecbe8});
 const sky = new THREE.Mesh(skyGeometry, skyMaterial);
 sky.position.y = 15.0;
 sky.rotation.x = -0.016;
 scene.add(sky);
+
+loadTexture(
+  `${import.meta.env.BASE_URL}/textures/skytile1.png`,
+  (tex) => {
+	tex.wrapS = THREE.RepeatWrapping;
+	tex.wrapT = THREE.RepeatWrapping;
+	tex.repeat.set(20, 8);
+	skyMaterial.map = tex;
+	skyMaterial.color = new THREE.Color(0xffffff);
+	skyMaterial.needsUpdate = true;
+  }
+);
 
 // Far walls
 // const wallGeometry = new THREE.BoxGeometry(2200, 2200, 0.1);
@@ -392,13 +423,7 @@ scene.add(sky);
 
 // Pillars
 const pillarGeometry = new THREE.CylinderGeometry(0.5*pillarDiameter, 0.5*pillarDiameter, pillarHeight, 16);
-const pillarTexture = new THREE.TextureLoader().load(
-	`${import.meta.env.BASE_URL}/textures/Wood051/Wood051_1K-JPG_Color.jpg`
-);
-pillarTexture.wrapS = THREE.RepeatWrapping;
-pillarTexture.wrapT = THREE.RepeatWrapping;
-pillarTexture.repeat.set(2, 1);
-const pillarMaterial = new THREE.MeshLambertMaterial({map: pillarTexture, color: 0xcfcfcf});
+const pillarMaterial = new THREE.MeshLambertMaterial({color: 0x41342e});
 const pillar = [];
 for (let i = -1; i <= 1; ++i) {
     const p = new THREE.Mesh(pillarGeometry, pillarMaterial);
@@ -407,27 +432,48 @@ for (let i = -1; i <= 1; ++i) {
     pillar.push(p);
 }
 
+loadTexture(
+  `${import.meta.env.BASE_URL}/textures/Wood051/Wood051_1K-JPG_Color.jpg`,
+  (tex) => {
+	tex.wrapS = THREE.RepeatWrapping;
+	tex.wrapT = THREE.RepeatWrapping;
+	tex.repeat.set(2, 1);
+	pillarMaterial.map = tex;
+	pillarMaterial.color = new THREE.Color(0xcfcfcf);
+	pillarMaterial.needsUpdate = true;
+  }
+);
+
 // discs
 const discColors = [
     0xe69f00, 0x56b4e9, 0x009e73, 0xf0e442, 0x0072b2, 0xd55e00, 0xcc79a7
 ];
-const discTexture = new THREE.TextureLoader().load(
-	`${import.meta.env.BASE_URL}/textures/Travertine009/Travertine009_1K-JPG_Color.jpg`
-);
-discTexture.wrapS = THREE.RepeatWrapping;
-discTexture.wrapT = THREE.RepeatWrapping;
-discTexture.repeat.set(2, 2);
+
 const discs = [];
 for (let i = 0; i < numDiscs; ++i) {
     const radius = 0.4 + 0.1 * i;
     const geometry = new THREE.CylinderGeometry(radius, radius, 0.2, 32);
-    const material = new THREE.MeshLambertMaterial({map: discTexture, color: discColors[i % 7]});
+    const material = new THREE.MeshLambertMaterial({color: discColors[i % 7]});
     const d = new THREE.Mesh(geometry, material);
     d.position.x = -pillarDistance;
     d.position.y = -0.5*pillarHeight + discThickness*(numDiscs - i - 1 + 0.5);
     scene.add(d);
     discs.push(d);
 }
+
+loadTexture(
+  `${import.meta.env.BASE_URL}/textures/Travertine009/Travertine009_1K-JPG_Color.jpg`,
+  (tex) => {
+	tex.wrapS = THREE.RepeatWrapping;
+	tex.wrapT = THREE.RepeatWrapping;
+	tex.repeat.set(2, 2);
+
+	discs.forEach((d) => {
+		(d.material as THREE.MeshLambertMaterial).map = tex;
+		(d.material as THREE.MeshLambertMaterial).needsUpdate = true;
+	}
+	);
+});
 
 // Camera position
 // normal

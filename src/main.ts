@@ -38,6 +38,7 @@ const messages = {
 };
 
 const i18n = createI18n({
+    legacy: false,
     locale: navigator.language.split('-')[0],
     fallbackLocale: 'en',
     messages,

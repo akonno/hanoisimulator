@@ -157,8 +157,64 @@ const app = createApp({
         this.$i18n.locale = this.selectedLocale;
         // console.log('locale is changed to ', this.$i18n.locale);
       }
+    },
+    mounted()
+    {
+  console.log("[mounted] this.$el =", this.$el);
+  console.log("[mounted] this.$el.querySelector(#canvas) =", (this.$el as HTMLElement).querySelector("#canvas"));
+  console.log("[mounted] document.getElementById(#canvas) =", document.getElementById("canvas"));
+  console.log("[mounted] all #canvas =", document.querySelectorAll("#canvas").length);
+
+  this.$nextTick(() => {
+    console.log("[nextTick] document.getElementById(#canvas) =", document.getElementById("canvas"));
+  });
+
+        console.log(
+        "[DEBUG] inside mounted(), canvas =",
+        document.getElementById("canvas")
+        );
+
+        console.log("has #canvas?", document.getElementById("canvas"));
+
+        const canvas = document.getElementById("canvas")!;
+        console.log("canvas:", canvas);
+        const width = canvas.scrollWidth;
+        renderer.setSize(width, width / 16 * 9);
+        canvas.appendChild(renderer.domElement);
+        
+        onResize();
+        window.addEventListener('resize', onResize);
+
+        
+        // Start visualization
+        // This should be after initializing app, because animate() uses app.playMode.
+        if (WebGL.isWebGLAvailable()) {
+            animate();
+        } else {
+            errorMessage = WebGL.getWebGLErrorMessage();
+            errorOccured = true;
+        }
     }
-  }).use(i18n).mount("#app");
+  });
+app.use(i18n);
+
+
+// --- mount 後 ---
+console.log(
+  "[DEBUG] before mount, canvas =",
+  document.getElementById("canvas")
+);
+
+
+app.mount("#app");
+
+
+// --- mount 後 ---
+console.log(
+  "[DEBUG] after mount, canvas =",
+  document.getElementById("canvas")
+);
+
 
 // The tower of Hanoi visualization/animation
 // scene, camera and renderer
@@ -168,10 +224,6 @@ const camera = new THREE.PerspectiveCamera(
     0.1, 1000
 );
 const renderer = new THREE.WebGLRenderer({antialias: true});
-
-const width = document.getElementById("canvas").scrollWidth;
-renderer.setSize(width, width / 16 * 9);
-document.getElementById("canvas").appendChild(renderer.domElement);
 
 // constants
 const numDiscsDefault = 7;
@@ -223,7 +275,7 @@ scene.add(light2);
 
 // Ground
 const groundGeometry = new THREE.BoxGeometry(5000, 0.1, 2200);
-const groundTexture = new THREE.TextureLoader().load('public/textures/PavingStones128/PavingStones128_1K-JPG_Color.jpg');
+const groundTexture = new THREE.TextureLoader().load('textures/PavingStones128/PavingStones128_1K-JPG_Color.jpg');
 groundTexture.wrapS = THREE.RepeatWrapping;
 groundTexture.wrapT = THREE.RepeatWrapping;
 groundTexture.repeat.set(2500, 1100);
@@ -234,7 +286,7 @@ scene.add(ground);
 
 // Sky
 const skyGeometry = new THREE.BoxGeometry(5000, 0.1, 2200);
-const skyTexture = new THREE.TextureLoader().load('public/textures/skytile1.png');
+const skyTexture = new THREE.TextureLoader().load('textures/skytile1.png');
 skyTexture.wrapS = THREE.RepeatWrapping;
 skyTexture.wrapT = THREE.RepeatWrapping;
 skyTexture.repeat.set(20, 8);
@@ -254,7 +306,7 @@ scene.add(sky);
 
 // Pillars
 const pillarGeometry = new THREE.CylinderGeometry(0.5*pillarDiameter, 0.5*pillarDiameter, pillarHeight, 16);
-const pillarTexture = new THREE.TextureLoader().load('public/textures/Wood051/Wood051_1K-JPG_Color.jpg');
+const pillarTexture = new THREE.TextureLoader().load('textures/Wood051/Wood051_1K-JPG_Color.jpg');
 pillarTexture.wrapS = THREE.RepeatWrapping;
 pillarTexture.wrapT = THREE.RepeatWrapping;
 pillarTexture.repeat.set(2, 1);
@@ -271,7 +323,7 @@ for (let i = -1; i <= 1; ++i) {
 const discColors = [
     0xe69f00, 0x56b4e9, 0x009e73, 0xf0e442, 0x0072b2, 0xd55e00, 0xcc79a7
 ];
-const discTexture = new THREE.TextureLoader().load('public/textures/Travertine009/Travertine009_1K-JPG_Color.jpg');
+const discTexture = new THREE.TextureLoader().load('textures/Travertine009/Travertine009_1K-JPG_Color.jpg');
 discTexture.wrapS = THREE.RepeatWrapping;
 discTexture.wrapT = THREE.RepeatWrapping;
 discTexture.repeat.set(2, 2);
@@ -437,11 +489,11 @@ function animate() {
     renderer.render(scene, camera);
 }
 
-onResize();
-window.addEventListener('resize', onResize);
-
 function onResize()
 {
+    console.log("resize event fired");
+    console.log("has #canvas?", document.getElementById("canvas"));
+
     const width = document.getElementById("controllerBox").scrollWidth;
     const height = width / 16 * 9;
 
@@ -452,13 +504,4 @@ function onResize()
   // カメラのアスペクト比を正す
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
-}
-
-// Start visualization
-// This should be after initializing app, because animate() uses app.playMode.
-if (WebGL.isWebGLAvailable()) {
-    animate();
-} else {
-    app.errorMessage = WebGL.getWebGLErrorMessage();
-    app.errorOccured = true;
 }

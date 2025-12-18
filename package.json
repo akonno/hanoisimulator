@@ -2,11 +2,12 @@
   "name": "hanoisimulator",
   "version": "1.0.0",
   "description": "A Tower of Hanoi simulator for teachers to teach the concept of recursion",
-   "scripts": {
+  "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "typecheck": "vue-tsc --noEmit"
   },
   "repository": {
     "type": "git",
@@ -22,7 +23,10 @@
   },
   "homepage": "https://github.com/akonno/HanoiSimulator#readme",
   "devDependencies": {
-    "vite": "^7.3.0"
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.0",
+    "vue-tsc": "^3.1.8"
   },
   "dependencies": {
     "three": "^0.182.0",

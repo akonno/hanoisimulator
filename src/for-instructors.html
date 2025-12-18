@@ -7,8 +7,6 @@
 		<style>
 			body { margin: 0; }
 		</style>
-		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
-		<link rel ="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 	</head>
 	<body>
         <section class="hero">
@@ -20,7 +18,7 @@
         </section>
         <section class="section">
             <!-- <div class="block"> -->
-                <h2 class="subtitle">For instructors</h2>
+                <h3 class="subtitle">Purpose of the simulator</h3>
                 <p class="content">
                     This simulator was developed for instructors who teach programming.
                 </p>
@@ -28,16 +26,16 @@
                     Suppose you are an instructor teaching programming and want to teach your students about the concept of recursive calls. You might want them to solve the famous puzzle '<a href="https://en.wikipedia.org/wiki/Tower_of_Hanoi" target="_blank" rel="noopener noreferrer">Tower of Hanoi</a>', which utilizes the idea of recursion. However, while you can teach the concept of the Tower of Hanoi, it might be challenging to make the class appealing to students who are just beginning to learn programming, as replicating the movement of discs in the Tower of Hanoi on a screen requires extensive knowledge beyond just recursion.
                 </p>
                 <p class="content">
-                    This 'Hanoi Simulator' is a program that moves the discs of the 'Tower of Hanoi' according to given instructions. The simulator itself does not have the functionality to solve the Tower of Hanoi puzzle. (However, it does come with initial instructions to move three discs.) You will have your students write a program that outputs instructions for moving the discs in the Tower of Hanoi. Then, by executing these outputs in this simulator, you can visually confirm through animation whether the 'Tower of Hanoi' has been solved correctly.
+                    This 'Hanoi Simulator' is a program that moves the discs of the 'Tower of Hanoi' according to given instructions. The simulator itself does not have the functionality to solve the Tower of Hanoi puzzle. (However, it does come with initial instructions to move three discs.) You will have your students write a program that outputs instructions for moving the discs in the Tower of Hanoi. Then, by executing these outputs in this simulator, you (and your students) can visually confirm through animation whether the 'Tower of Hanoi' has been solved correctly.
                 </p>
-                <h3 class="subtitle is-6 is-italic">Using the Simulator in Classrooms</h3>
+                <h3 class="subtitle">Using the simulator in classrooms</h3>
                 <p class="content">
                     In the class, students will output a set of instructions to move the discs of the Tower of Hanoi using their own programs. They will then copy and paste these instructions into the Hanoi Simulator to solve the Tower of Hanoi puzzle.
                     Instructors can quickly verify the result visually (e.g., via an on-screen state or a screenshot).
                 </p>
             <!-- </div> -->
             <!-- <div class="block"> -->
-                <h2 class="subtitle is-6 is-italic">How to change the number of discs</h2>
+                <h2 class="subtitle">How to change the number of discs</h2>
                 <p class="content">If you want students to attempt puzzles with more or fewer discs, you can set the number of discs by specifying it in the "numDiscs" URL parameter.</p>
                 <ul class="content">
                     <li><a href="./?numDiscs=5">5 discs</a></li>
@@ -61,7 +59,7 @@
             </p>
             <p class="content">
             If you find it useful in your teaching and would like to support the author’s work on open educational tools, you may do so here:
-            <a class="button is-small is-light" href="https://ko-fi.com/akonno" target="_blank" rel="noopener noreferrer">Ko-fi</a>.
+            <a class="button is-small" href="https://ko-fi.com/akonno" target="_blank" rel="noopener noreferrer">Ko-fi</a>.
             </p>
             <p class="content is-size-7">
             Support is entirely optional and not required to use this simulator in any classroom setting. It does not imply additional features, services, or obligations.
@@ -83,5 +81,6 @@
 			  </p>
 			</div>
 		</footer>
+        <script type="module" src="/site.ts"></script>
 	</body>
 </html>

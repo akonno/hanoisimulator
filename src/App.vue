@@ -114,12 +114,12 @@
 
 <script setup lang="ts">
 // 3D animation of the towers of Hanoi
-// Copyright (C) 2024 KONNO Akihisa <konno@researchers.jp>
+// Copyright (C) 2024-2025 KONNO Akihisa <konno@researchers.jp>
 
 /*
 MIT License
 
-Copyright (c) 2024 KONNO Akihisa <konno@researchers.jp>
+Copyright (c) 2024-2025 KONNO Akihisa <konno@researchers.jp>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -208,6 +208,7 @@ function pause()
 {
 	playMode.value = false;
 }
+
 function restore()
 {
 	playMode.value = false;
@@ -220,15 +221,17 @@ function restore()
 	currentMotionStep.value = 0;
 	finished.value = false;
 }
+
 function moveIfError()
 {
-if (errorOccured.value == false) {
-	// Called with no error; program bug?
-	console.error('error: moveIfError called with errorOccured == false');
-	return;
+	if (errorOccured.value == false) {
+		// Called with no error; program bug?
+		console.error('error: moveIfError called with errorOccured == false');
+		return;
+	}
+	playMode.value = true;
 }
-playMode.value = true;
-}
+
 function commandChanged()
 {
 	restore();
@@ -236,28 +239,31 @@ function commandChanged()
 	currentMotionStep.value = numTotalSteps.value = 0;
 	finished.value = false;
 }
+
 function canvasClicked()
 {
-if (playMode.value === true) {
-	// pause
-	playMode.value = false;
-} else if (errorOccured.value == false) {
-	play();
-} else if (!finished.value) {
-	// error occured but can run.
-	playMode.value = true;
+	if (playMode.value === true) {
+		// pause
+		playMode.value = false;
+	} else if (errorOccured.value == false) {
+		play();
+	} else if (!finished.value) {
+		// error occured but can run.
+		playMode.value = true;
+	}
 }
-}
+
 function takeScreenShot()
 {
-// https://jsfiddle.net/n853mhwo/
-var a = document.createElement('a');
-// Without 'preserveDrawingBuffer' set to true, we must render now
-renderer.render(scene, camera);
-a.href = renderer.domElement.toDataURL().replace("image/png", "image/octet-stream");
-a.download = 'screenshot.png';
-a.click();
+	// https://jsfiddle.net/n853mhwo/
+	var a = document.createElement('a');
+	// Without 'preserveDrawingBuffer' set to true, we must render now
+	renderer.render(scene, camera);
+	a.href = renderer.domElement.toDataURL().replace("image/png", "image/octet-stream");
+	a.download = 'screenshot.png';
+	a.click();
 }
+
 function switchLocale()
 {
 	locale.value = selectedLocale.value;
@@ -351,7 +357,9 @@ scene.add(light2);
 
 // Ground
 const groundGeometry = new THREE.BoxGeometry(5000, 0.1, 2200);
-const groundTexture = new THREE.TextureLoader().load('/textures/PavingStones128/PavingStones128_1K-JPG_Color.jpg');
+const groundTexture = new THREE.TextureLoader().load(
+	`${import.meta.env.BASE_URL}/textures/PavingStones128/PavingStones128_1K-JPG_Color.jpg`
+);
 groundTexture.wrapS = THREE.RepeatWrapping;
 groundTexture.wrapT = THREE.RepeatWrapping;
 groundTexture.repeat.set(2500, 1100);
@@ -362,7 +370,9 @@ scene.add(ground);
 
 // Sky
 const skyGeometry = new THREE.BoxGeometry(5000, 0.1, 2200);
-const skyTexture = new THREE.TextureLoader().load('/textures/skytile1.png');
+const skyTexture = new THREE.TextureLoader().load(
+	`${import.meta.env.BASE_URL}/textures/skytile1.png`
+);
 skyTexture.wrapS = THREE.RepeatWrapping;
 skyTexture.wrapT = THREE.RepeatWrapping;
 skyTexture.repeat.set(20, 8);
@@ -382,7 +392,9 @@ scene.add(sky);
 
 // Pillars
 const pillarGeometry = new THREE.CylinderGeometry(0.5*pillarDiameter, 0.5*pillarDiameter, pillarHeight, 16);
-const pillarTexture = new THREE.TextureLoader().load('/textures/Wood051/Wood051_1K-JPG_Color.jpg');
+const pillarTexture = new THREE.TextureLoader().load(
+	`${import.meta.env.BASE_URL}/textures/Wood051/Wood051_1K-JPG_Color.jpg`
+);
 pillarTexture.wrapS = THREE.RepeatWrapping;
 pillarTexture.wrapT = THREE.RepeatWrapping;
 pillarTexture.repeat.set(2, 1);
@@ -399,7 +411,9 @@ for (let i = -1; i <= 1; ++i) {
 const discColors = [
     0xe69f00, 0x56b4e9, 0x009e73, 0xf0e442, 0x0072b2, 0xd55e00, 0xcc79a7
 ];
-const discTexture = new THREE.TextureLoader().load('/textures/Travertine009/Travertine009_1K-JPG_Color.jpg');
+const discTexture = new THREE.TextureLoader().load(
+	`${import.meta.env.BASE_URL}/textures/Travertine009/Travertine009_1K-JPG_Color.jpg`
+);
 discTexture.wrapS = THREE.RepeatWrapping;
 discTexture.wrapT = THREE.RepeatWrapping;
 discTexture.repeat.set(2, 2);
@@ -449,10 +463,10 @@ function compile(commands) {
             // console.log(m[1], " -> ", m[2]);
         } else {
             if (!errorOccured) {
-                app.errorMessage = 'error: cannot parse line ' + lineno;
+                errorMessage.value = 'error: cannot parse line ' + lineno;
                 errorLine = lineno - 1;
             }
-            console.error(app.errorMessage);
+            console.error(errorMessage.value);
             errorOccured = true;
         }
         ++lineno;
@@ -485,10 +499,10 @@ function compile(commands) {
 
         if (towers[p1].length === 0) {
             if (!errorOccured) {
-                app.errorMessage = 'error: tower ' + ['A', 'B', 'C'][p1] + ' is empty at line ' + lineno;
+                errorMessage.value = 'error: tower ' + ['A', 'B', 'C'][p1] + ' is empty at line ' + lineno;
                 errorLine = lineno - 1;
             }
-            console.error(app.errorMessage);
+            console.error(errorMessage.value);
             errorOccured = true;
             return;
         }
@@ -497,18 +511,18 @@ function compile(commands) {
         compiledMotions.push([discId, p1, p2, towers[p1].length + 1, towers[p2].length]);
         if (p1 == p2) {
             if (!errorOccured) {
-                app.errorMessage = 'error: the disc is not moved on tower ' + ['A', 'B', 'C'][p1] + ' at line ' + lineno;
+                errorMessage.value = 'error: the disc is not moved on tower ' + ['A', 'B', 'C'][p1] + ' at line ' + lineno;
                 errorLine = lineno;
             }
-            console.error(app.errorMessage);
+            console.error(errorMessage.value);
             errorOccured = true;
             return;
         } else if (towers[p2].length > 0 && p2top < discId) {
             if (!errorOccured) {
-                app.errorMessage = 'error: the size of disc at the top of tower ' + ['A', 'B', 'C'][p2] + ' is ' + (p2top+1) + ', smaller than ' + (discId+1) + ' at line ' + lineno;
+                errorMessage.value = 'error: the size of disc at the top of tower ' + ['A', 'B', 'C'][p2] + ' is ' + (p2top+1) + ', smaller than ' + (discId+1) + ' at line ' + lineno;
                 errorLine = lineno;
             }
-            console.error(app.errorMessage);
+            console.error(errorMessage.value);
             errorOccured = true;
             return;
         }
@@ -521,19 +535,12 @@ function compile(commands) {
     return !errorOccured;
 }
 
-let prevPlayMode = playMode.value;
-
 function animate() {
     requestAnimationFrame(animate)
 
-	if (prevPlayMode != playMode.value) {
-		console.log('playMode changed to ', playMode.value);
-		prevPlayMode = playMode.value;
-	}
-
     // Motion
     if (playMode.value) {
-        const animStep = parseInt(step / (3 * animNumSteps));
+        const animStep = Math.floor(step / (3 * animNumSteps));
         const animStartStep = animStep * (3 * animNumSteps);
         const finalStep = errorLine >= 0 ? errorLine : compiledMotions.length;
         currentMotionStep.value = animStep + 1 >= compiledMotions.length ? compiledMotions.length : animStep + 1;
@@ -550,16 +557,19 @@ function animate() {
             const endHeight = -0.5*pillarHeight + discThickness * (compiledMotions[animStep][4] + 0.5);
             // console.log(disc, startX, startHeight, endX, endHeight);
             if (step - animStartStep < animNumSteps) {
+				// move up
                 const height = startHeight + (hoverHeight - startHeight) * (step - animStartStep) / animNumSteps;
                 disc.position.x = startX;
                 disc.position.y = height;
             }
             else if (step - animStartStep < 2 * animNumSteps) {
+				// move horizontally
                 const x = startX + (endX - startX) * ((step - animStartStep) - animNumSteps) / animNumSteps;
                 disc.position.x = x;
                 disc.position.y = hoverHeight;
             }
             else if (step - animStartStep < 3 * animNumSteps) {
+				// move down
                 const height = endHeight + (hoverHeight - endHeight) * (3 * animNumSteps - (step - animStartStep)) / animNumSteps;
                 disc.position.x = endX;
                 disc.position.y = height;
@@ -574,7 +584,7 @@ function animate() {
 
 function onResize()
 {
-    const width = document.getElementById("controllerBox").scrollWidth;
+    const width = document.getElementById("controllerBox")!.scrollWidth;
     const height = width / 16 * 9;
 
     // レンダラーのサイズを調整する

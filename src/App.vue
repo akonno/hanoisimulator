@@ -214,8 +214,7 @@ import { useI18n } from 'vue-i18n';
 
 const { locale } = useI18n();
 
-import { compileHanoiMotions } from './domain/hanoiParser';
-import { error } from 'node:console';
+import { parseMotionCommands, compileHanoiMotions } from './domain/hanoiParser';
 let compiledResult: ReturnType<typeof compileHanoiMotions> | false = false;
 
 const containerRef = ref<HTMLElement | null>(null);
@@ -225,9 +224,9 @@ const playMode = ref(false);
 const errorOccured = ref(false);
 const errorMessage = ref("");
 const currentMotionStep = ref(0);
-const numTotalSteps = ref(0);
-const finished = ref(false);
+const numTotalSteps = ref(7);
 const motionCommands = ref("A,B\nA,C\nB,C\nA,B\nC,A\nC,B\nA,B");
+const finished = ref(false);
 const selectedLocale = ref(locale.value);
 const selectedTheme = ref('system');
 
@@ -271,10 +270,21 @@ const setScreenMode = (mode_: string) => {
     }
 }
 
+// Watches
 // テーマが変わるたびに`data-theme`属性を更新する
 watch(theme, (newTheme: string) => {
     document.documentElement.setAttribute('data-theme', newTheme);
 });
+
+watch(
+  motionCommands,
+  (text: string) => {
+    // 実行用compileとは別に、「行数」だけ更新する
+    const r = parseMotionCommands(text); // 例: 失敗行も motions に入れる方針
+    numTotalSteps.value = r.parsed.length + r.errors.length;
+  },
+  { immediate: true }
+);
 
 function play()
 {
@@ -620,99 +630,6 @@ camera.position.y = 1;
 let step = 0;
 let errorLine = -1;
 
-// function compile(commands) {
-//     // Parse commands and simulate disc motions
-//     compiledMotions = [];
-//     errorLine = -1;
-//     // First parse commands.
-//     const motionLines = commands.split("\n");
-//     const re = new RegExp("([ABC123])[, ]([ABC123])");
-//     const motions = [];
-//     let lineno = 1;
-//     let errorOccured = false;
-//     motionLines.forEach((line) => {
-//         if (line === '') {
-//             // empty line
-//             return; // continue
-//         }
-//         const m = line.match(re);
-//         if (m) {
-//             motions.push([m[1], m[2]]);
-//             // console.log(m[1], " -> ", m[2]);
-//         } else {
-//             if (!errorOccured) {
-//                 errorMessage.value = 'error: cannot parse line ' + lineno;
-//                 errorLine = lineno - 1;
-//             }
-//             console.error(errorMessage.value);
-//             errorOccured = true;
-//         }
-//         ++lineno;
-//     });
-//     numTotalSteps.value = motionLines.length;
-
-//     // Simulate disc motions.
-//     let towers = [ [], [], [] ];
-//     for (let i = 0; i < numDiscs.value; ++i) {
-//         towers[0].push(numDiscs.value - i - 1);
-//     }
-
-//     lineno = 1;
-//     motions.forEach((m) => {
-//         let p1 = 0, p2 = 0;
-//         if (m[0] === "1" || m[0] === "A") {
-//             p1 = 0;
-//         } else if (m[0] === "2" || m[0] === "B") {
-//             p1 = 1;
-//         } else if (m[0] === "3" || m[0] === "C") {
-//             p1 = 2;
-//         }
-//         if (m[1] === "1" || m[1] === "A") {
-//             p2 = 0;
-//         } else if (m[1] === "2" || m[1] === "B") {
-//             p2 = 1;
-//         } else if (m[1] === "3" || m[1] === "C") {
-//             p2 = 2;
-//         }
-
-//         if (towers[p1].length === 0) {
-//             if (!errorOccured) {
-//                 errorMessage.value = 'error: tower ' + ['A', 'B', 'C'][p1] + ' is empty at line ' + lineno;
-//                 errorLine = lineno - 1;
-//             }
-//             console.error(errorMessage.value);
-//             errorOccured = true;
-//             return;
-//         }
-//         const discId = towers[p1].pop();
-//         const p2top = towers[p2][towers[p2].length - 1];
-//         compiledMotions.push([discId, p1, p2, towers[p1].length + 1, towers[p2].length]);
-//         if (p1 == p2) {
-//             if (!errorOccured) {
-//                 errorMessage.value = 'error: the disc is not moved on tower ' + ['A', 'B', 'C'][p1] + ' at line ' + lineno;
-//                 errorLine = lineno;
-//             }
-//             console.error(errorMessage.value);
-//             errorOccured = true;
-//             return;
-//         } else if (towers[p2].length > 0 && p2top < discId) {
-//             if (!errorOccured) {
-//                 errorMessage.value = 'error: the size of disc at the top of tower ' + ['A', 'B', 'C'][p2] + ' is ' + (p2top+1) + ', smaller than ' + (discId+1) + ' at line ' + lineno;
-//                 errorLine = lineno;
-//             }
-//             console.error(errorMessage.value);
-//             errorOccured = true;
-//             return;
-//         }
-//         towers[p2].push(discId);
-
-//         ++lineno;
-//     });
-
-//     // console.log(compiledMotions);
-//     return !errorOccured;
-// }
-
 let rafId: number | null = null;
 
 function animate() {
@@ -722,7 +639,10 @@ function animate() {
     if (playMode.value) {
         const animStep = Math.floor(step / (3 * animNumSteps));
         const animStartStep = animStep * (3 * animNumSteps);
-        const finalStep = errorLine >= 0 ? errorLine : compiledResult.motions.length;
+        if (!compiledResult) {
+            compiledResult = compileHanoiMotions(motionCommands.value, numDiscs.value);
+        }
+        const finalStep = compiledResult.firstErrorLine !== null ? compiledResult.firstErrorLine : compiledResult.motions.length;
         currentMotionStep.value = animStep + 1 >= compiledResult.motions.length ? compiledResult.motions.length : animStep + 1;
         if (animStep >= finalStep) {
             playMode.value = false;

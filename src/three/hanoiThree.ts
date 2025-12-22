@@ -1,5 +1,5 @@
 // src/three/hanoiThree.ts
-// Last Modified: 2025/12/22 19:58:06
+// Last Modified: 2025/12/22 20:08:40
 // Copyright (C) 2024-2025 KONNO Akihisa <konno@researchers.jp>
 
 // Three.js view layer for Hanoi Simulator (scene/camera/renderer + meshes + textures + lifecycle)
@@ -400,24 +400,19 @@ export class HanoiThree {
 
   }
 
+  // ------------------------
+  // Disc management
+  // ------------------------
   private clearDiscs(): void {
     for (const d of this.discMeshes) this.scene.remove(d);
-    // geometries/materials are already tracked; they will be disposed in disposeAll()
-    // but here we want to free them immediately to avoid growth when changing disc count:
-    // -> easiest safe policy: call disposeAll() and rebuild *everything* is overkill,
-    // so here we dispose only discs' own resources.
-    //
-    // However, because pillar/ground/sky resources are also tracked in the same tracker,
-    // disc-only disposal is tricky without separate trackers.
-    //
-    // Practical choice: keep tracker as "global", but DO NOT call tracker.disposeAll() here.
-    // Just drop meshes; actual GPU free happens at final dispose().
-    //
-    // (If you want frequent disc-count changes, split trackers: envTracker + discTracker.)
+
     this.discTracker.disposeAll();
     this.discMeshes = [];
   }
 
+  // ------------------------
+  // Utility functions for texture loading
+  // ------------------------
   private loadTexture(url: string, onLoad: (tex: THREE.Texture) => void): void {
     this.ensureNotDisposed();
     this.textureLoader.load(
@@ -463,6 +458,9 @@ export class HanoiThree {
     });
   }
 
+  // ------------------------
+  // Other utilities
+  // ------------------------
   private assetUrl(relPath: string): string {
     // Normalize baseUrl + relPath (relPath should not start with '/')
     const base = this.baseUrl.endsWith("/") ? this.baseUrl : `${this.baseUrl}/`;

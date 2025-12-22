@@ -47,8 +47,6 @@
 				</div>
 			</div>
 			<div class="container" id="canvas" @click="canvasClicked"></div>
-		</section>
-		<section class="section">
 		<div class="container">
 			<div class="box" id="controllerBox">
 				<h2 class="subtitle">

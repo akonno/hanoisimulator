@@ -114,10 +114,20 @@
                 <h2 class="subtitle">{{ $t("message.settings") }}</h2>
                 <div class="field is-grouped">
                     <label class="label"><span class="icon-text"><span class="icon"><i class="fas fa-layer-group"></i></span><span>{{ $t("message.discs") }}</span></span></label>
-                    <div class="select">
-                        <select v-model.number="numDiscs" @change="setNumDiscs(numDiscs)">
-                            <option v-for="n in [5, 6, 7, 8, 9, 10]" :key="n" :value="n">{{ n }}</option>
-                        </select>
+                    <div class="dropdown" :class="{ 'is-active' : isDiscsDropdownActive}" @click="toggleDiscsDropdown">
+                        <div class="dropdown-trigger">
+                            <button class="button" aria-haspopup="true" aria-controls="dropdown-menu">
+                            <span>{{ numDiscs }}</span>
+                            <span class="icon is-small">
+                                <i class="fas fa-angle-down" aria-hidden="true"></i>
+                            </span>
+                            </button>
+                        </div>
+                        <div class="dropdown-menu" id="dropdown-menu" role="menu">
+                            <div class="dropdown-content">
+                                <button v-for="n in [5, 6, 7, 8, 9, 10]" class="dropdown-item" :class="{ 'is-active': numDiscs.value === n }" @click="setNumDiscs(n)">{{ n }}</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="field is-grouped">
@@ -244,15 +254,23 @@ const selectedTheme = ref('system');
 
 const isBurgerActive = ref(false);
 const isSettingsModalActive = ref(false);
+const isDiscsDropdownActive = ref(false);
+const numDiscs = ref(7);
 
 function toggleSettingsModal()
 {
     isSettingsModalActive.value = !isSettingsModalActive.value;
 }
 
+function toggleDiscsDropdown()
+{
+    isDiscsDropdownActive.value = !isDiscsDropdownActive.value;
+}
+
 function setNumDiscs(n: number)
 {
-    let url = new URL(window.location.href);
+    numDiscs.value = n; // for updating the dropdown menu label
+    const url = new URL(window.location.href);
     url.searchParams.set('numDiscs', n.toString());
     window.location.href = url.toString();
 }
@@ -303,9 +321,9 @@ function restore()
 {
 	playMode.value = false;
 	// Restore all the discs to the initial positions.
-	for (let i = 0; i < numDiscs; ++i) {
+	for (let i = 0; i < numDiscs.value; ++i) {
 		discs[i].position.x = -pillarDistance;
-		discs[i].position.y = -0.5*pillarHeight + discThickness*(numDiscs - i - 1 + 0.5);
+		discs[i].position.y = -0.5*pillarHeight + discThickness*(numDiscs.value - i - 1 + 0.5);
 	}
 	step = 0;
 	currentMotionStep.value = 0;
@@ -398,7 +416,7 @@ const discThickness = 0.2;
 const animNumSteps = 60;
 
 // number of discs: can specify from URL
-let numDiscs = numDiscsDefault;
+numDiscs.value = numDiscsDefault;
 let uri = window.location.href.split('?');
 if(uri.length == 2) {
     let vars = uri[1].split('&');
@@ -417,19 +435,18 @@ if(uri.length == 2) {
     });
     // console.log(parsedVars);
     if (1 < parsedVars.numDiscs) {
-        numDiscs = parsedVars.numDiscs;
+        numDiscs.value = parsedVars.numDiscs;
     } else {
         console.warn('warning: numDiscs in query should be >2 but is <= 1');
     }
 }
 
 // calculate visualization parameters such as the length of pillars and distance between them.
-const pillarHeight = (numDiscs + 2) * discThickness >= 3.0 ? (numDiscs + 2) * discThickness : 3.0;
-const largestDiscRadius = 0.4 + 0.1 * (numDiscs - 1);
+const pillarHeight = (numDiscs.value + 2) * discThickness >= 3.0 ? (numDiscs.value + 2) * discThickness : 3.0;
+const largestDiscRadius = 0.4 + 0.1 * (numDiscs.value - 1);
 const pillarDistance = 2 * largestDiscRadius + 0.2 > 3.2 ? 2 * largestDiscRadius + 0.2 : 3.2;
 const hoverHeight = 0.5 * pillarHeight + 3 * discThickness > 1.8 ? 0.5 * pillarHeight + 3 * discThickness : 1.8;
-const cameraZ = 0.35 * numDiscs > 6 ? 0.35 * numDiscs : 6;
-
+const cameraZ = 0.35 * numDiscs.value > 6 ? 0.35 * numDiscs.value : 6;
 // Light
 const light1 = new THREE.AmbientLight(0xffffff, 0.8);
 scene.add(light1);
@@ -534,13 +551,13 @@ const discColors = [
 ];
 
 const discs = [];
-for (let i = 0; i < numDiscs; ++i) {
+for (let i = 0; i < numDiscs.value; ++i) {
     const radius = 0.4 + 0.1 * i;
     const geometry = new THREE.CylinderGeometry(radius, radius, 0.2, 32);
     const material = new THREE.MeshLambertMaterial({color: discColors[i % 7]});
     const d = new THREE.Mesh(geometry, material);
     d.position.x = -pillarDistance;
-    d.position.y = -0.5*pillarHeight + discThickness*(numDiscs - i - 1 + 0.5);
+    d.position.y = -0.5*pillarHeight + discThickness*(numDiscs.value - i - 1 + 0.5);
     scene.add(d);
     discs.push(d);
 }
@@ -605,8 +622,8 @@ function compile(commands) {
 
     // Simulate disc motions.
     let towers = [ [], [], [] ];
-    for (let i = 0; i < numDiscs; ++i) {
-        towers[0].push(numDiscs - i - 1);
+    for (let i = 0; i < numDiscs.value; ++i) {
+        towers[0].push(numDiscs.value - i - 1);
     }
 
     lineno = 1;

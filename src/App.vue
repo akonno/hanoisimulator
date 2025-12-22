@@ -46,7 +46,7 @@
 					{{ $t("message.step") }} {{ currentMotionStep }} / {{ numTotalSteps }}
 				</div>
 			</div>
-			<div class="container" id="canvas" @click="canvasClicked"></div>
+			<div class="container" id="canvas" ref="containerRef" @click="canvasClicked"></div>
 		<div class="container">
 			<div class="box" id="controllerBox">
 				<h2 class="subtitle">
@@ -235,10 +235,12 @@ SOFTWARE.
 // import Footer from 'components/Footer.vue';
 
 import * as THREE from 'three';
-import { ref, onMounted, watch, h } from 'vue';
+import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 const { locale } = useI18n();
+
+const containerRef = ref<HTMLElement | null>(null);
 
 // setup Vue app
 const playMode = ref(false);
@@ -286,7 +288,7 @@ const setScreenMode = (mode_: string) => {
         document.documentElement.setAttribute('data-theme', mode_);
         theme.value = mode_;
         // Save the theme to localStorage
-        // localStorage.setItem('theme', mode_);
+        localStorage.setItem('theme', mode_);
     } else {
         console.error(`error: unsupported screen mode ${mode_} is specified.`);
     }
@@ -382,7 +384,8 @@ function isWebGLAvailable(): boolean {
 }
 
 onMounted(() => {
-	const canvas = document.getElementById("canvas")!;
+    // Setup renderer
+    const canvas = containerRef.value;
 	const width = canvas.scrollWidth;
 	renderer.setSize(width, width / 16 * 9);
 	canvas.appendChild(renderer.domElement);
@@ -398,6 +401,54 @@ onMounted(() => {
 		errorMessage.value =  "WebGL is not available in this browser/environment.";
 		errorOccured.value = true;
 	}
+});
+
+// Helper function to dispose material and its textures
+const disposedTextures = new WeakSet<THREE.Texture>();
+
+const disposeMaterial = (mat: THREE.Material) => {
+  const anyMat = mat as any;
+  const texProps = [
+    "map","alphaMap","aoMap","bumpMap","displacementMap","emissiveMap",
+    "envMap","lightMap","metalnessMap","normalMap","roughnessMap"
+  ];
+
+  for (const p of texProps) {
+    const t = anyMat[p] as THREE.Texture | null | undefined;
+    if (t && !disposedTextures.has(t)) {
+      disposedTextures.add(t);
+      t.dispose();
+    }
+  }
+  mat.dispose();
+};
+
+onBeforeUnmount(() => {
+    window.removeEventListener('resize', onResize);
+    if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+    }
+
+    scene.traverse((obj) => {
+        const anyObj = obj as any;
+
+        // Mesh / Line / Points あたりを広く拾う
+        if (!anyObj.isMesh && !anyObj.isLine && !anyObj.isPoints) return;
+
+        anyObj.geometry?.dispose?.();
+
+        const mat = anyObj.material;
+        if (Array.isArray(mat)) mat.forEach(disposeMaterial);
+        else if (mat) disposeMaterial(mat);
+    });
+
+
+    (renderer as any).forceContextLoss?.();
+    renderer.dispose();
+
+    if (containerRef.value) {
+        containerRef.value.removeChild(renderer.domElement);
+    }
 });
 
 // The tower of Hanoi visualization/animation
@@ -682,8 +733,10 @@ function compile(commands) {
     return !errorOccured;
 }
 
+let rafId: number | null = null;
+
 function animate() {
-    requestAnimationFrame(animate)
+    rafId = requestAnimationFrame(animate)
 
     // Motion
     if (playMode.value) {

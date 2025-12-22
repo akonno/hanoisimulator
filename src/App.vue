@@ -208,7 +208,6 @@
 // 3D animation of the towers of Hanoi
 // Copyright (C) 2024-2025 KONNO Akihisa <konno@researchers.jp>
 
-import * as THREE from 'three';
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -216,6 +215,9 @@ const { locale } = useI18n();
 
 import { parseMotionCommands, compileHanoiMotions } from './domain/hanoiParser';
 let compiledResult: ReturnType<typeof compileHanoiMotions> | false = false;
+
+import { HanoiThree } from "./three/hanoiThree";
+let three: HanoiThree | null = null;
 
 const containerRef = ref<HTMLElement | null>(null);
 
@@ -312,10 +314,10 @@ function pause()
 function restore()
 {
 	playMode.value = false;
+    if (!three) return;
 	// Restore all the discs to the initial positions.
 	for (let i = 0; i < numDiscs.value; ++i) {
-		discs[i].position.x = -pillarDistance;
-		discs[i].position.y = -0.5*pillarHeight + discThickness*(numDiscs.value - i - 1 + 0.5);
+        three.setDiscPosition(i, -three.layout.pillarDistance, -0.5*three.layout.pillarHeight + three.layout.discThickness*(numDiscs.value - i - 1 + 0.5));
 	}
 	step = 0;
 	currentMotionStep.value = 0;
@@ -337,7 +339,7 @@ function commandChanged()
 	restore();
     compiledResult = false;
 	errorOccured.value = false;
-	currentMotionStep.value = numTotalSteps.value = 0;
+	currentMotionStep.value = 0;
 	finished.value = false;
 }
 
@@ -356,37 +358,34 @@ function canvasClicked()
 
 function takeScreenShot()
 {
+    if (!three) return;
 	// https://jsfiddle.net/n853mhwo/
 	var a = document.createElement('a');
 	// Without 'preserveDrawingBuffer' set to true, we must render now
-	renderer.render(scene, camera);
-	a.href = renderer.domElement.toDataURL().replace("image/png", "image/octet-stream");
+	a.href = three.screenshot().replace("image/png", "image/octet-stream");
 	a.download = 'screenshot.png';
 	a.click();
 }
 
-function isWebGLAvailable(): boolean {
-  try {
-    const canvas = document.createElement("canvas");
-    return !!(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
-  } catch {
-    return false;
-  }
-}
-
 onMounted(() => {
     // Setup renderer
-    const canvas = containerRef.value;
-	const width = canvas.scrollWidth;
-	renderer.setSize(width, width / 16 * 9);
-	canvas.appendChild(renderer.domElement);
+    if (!containerRef.value) {
+        console.error('error: containerRef is null in onMounted');
+        errorMessage.value = "Internal error: container not found.";
+        errorOccured.value = true;
+        return;
+    }
+    three = new HanoiThree({ numDiscs: numDiscs.value });
+    three.mount(containerRef.value);
+	const width = containerRef.value.scrollWidth;
+	three.resize(width, width / 16 * 9);
 	
 	onResize();
 	window.addEventListener('resize', onResize);
 	
 	// Start visualization
 	// This should be after initializing app, because animate() uses app.playMode.
-	if (isWebGLAvailable()) {
+	if (HanoiThree.isWebGLAvailable()) {
 		animate();
 	} else {
 		errorMessage.value =  "WebGL is not available in this browser/environment.";
@@ -394,67 +393,20 @@ onMounted(() => {
 	}
 });
 
-// Helper function to dispose material and its textures
-const disposedTextures = new WeakSet<THREE.Texture>();
-
-const disposeMaterial = (mat: THREE.Material) => {
-  const anyMat = mat as any;
-  const texProps = [
-    "map","alphaMap","aoMap","bumpMap","displacementMap","emissiveMap",
-    "envMap","lightMap","metalnessMap","normalMap","roughnessMap"
-  ];
-
-  for (const p of texProps) {
-    const t = anyMat[p] as THREE.Texture | null | undefined;
-    if (t && !disposedTextures.has(t)) {
-      disposedTextures.add(t);
-      t.dispose();
-    }
-  }
-  mat.dispose();
-};
-
 onBeforeUnmount(() => {
     window.removeEventListener('resize', onResize);
     if (rafId !== null) {
         cancelAnimationFrame(rafId);
     }
 
-    scene.traverse((obj) => {
-        const anyObj = obj as any;
-
-        // Mesh / Line / Points あたりを広く拾う
-        if (!anyObj.isMesh && !anyObj.isLine && !anyObj.isPoints) return;
-
-        anyObj.geometry?.dispose?.();
-
-        const mat = anyObj.material;
-        if (Array.isArray(mat)) mat.forEach(disposeMaterial);
-        else if (mat) disposeMaterial(mat);
-    });
-
-
-    (renderer as any).forceContextLoss?.();
-    renderer.dispose();
-
-    if (containerRef.value) {
-        containerRef.value.removeChild(renderer.domElement);
+    if (three) {
+        three.dispose();
+        three = null;
     }
 });
 
-// The tower of Hanoi visualization/animation
-// scene, camera and renderer
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
-    75, 16./9.,
-    0.1, 1000
-);
-const renderer = new THREE.WebGLRenderer({antialias: true});
-
 // constants
 const numDiscsDefault = 7;
-const pillarDiameter = 0.2;
-const discThickness = 0.2;
 const animNumSteps = 60;
 
 // number of discs: can specify from URL
@@ -484,173 +436,36 @@ if(uri.length == 2) {
 }
 
 // calculate visualization parameters such as the length of pillars and distance between them.
-const pillarHeight = (numDiscs.value + 2) * discThickness >= 3.0 ? (numDiscs.value + 2) * discThickness : 3.0;
-const largestDiscRadius = 0.4 + 0.1 * (numDiscs.value - 1);
-const pillarDistance = 2 * largestDiscRadius + 0.2 > 3.2 ? 2 * largestDiscRadius + 0.2 : 3.2;
-const hoverHeight = 0.5 * pillarHeight + 3 * discThickness > 1.8 ? 0.5 * pillarHeight + 3 * discThickness : 1.8;
-const cameraZ = 0.35 * numDiscs.value > 6 ? 0.35 * numDiscs.value : 6;
-// Light
-const light1 = new THREE.AmbientLight(0xffffff, 0.8);
-scene.add(light1);
-const light2 = new THREE.DirectionalLight(0xffffff, 1);
-light2.position.x = 10;
-light2.position.y = 4;
-light2.position.z = 10;
-scene.add(light2);
-
-// Texture handling
-function loadTexture(
-  url: string,
-  onLoad: (tex: THREE.Texture) => void,
-  onError?: (err: unknown) => void
-) {
-  const loader = new THREE.TextureLoader();
-  loader.load(
-    url,
-    (tex) => onLoad(tex),
-    undefined,
-    (err) => {
-      console.warn(`[texture] failed to load: ${url}`, err);
-      onError?.(err);
-    }
-  );
-}
-
-
-// Ground
-const groundGeometry = new THREE.BoxGeometry(5000, 0.1, 2200);
-const groundMaterial = new THREE.MeshLambertMaterial({color: 0xc2c2c2});
-const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-ground.position.y = -0.5*pillarHeight - 0.05;
-scene.add(ground);
-
-loadTexture(
-  `${import.meta.env.BASE_URL}/textures/PavingStones128/PavingStones128_1K-JPG_Color.jpg`,
-  (tex) => {
-	tex.wrapS = THREE.RepeatWrapping;
-	tex.wrapT = THREE.RepeatWrapping;
-	tex.repeat.set(2500, 1100);
-	groundMaterial.map = tex;
-	groundMaterial.color = new THREE.Color(0xffffff);
-	groundMaterial.needsUpdate = true;
-  }
-);
-
-// Sky
-const skyGeometry = new THREE.BoxGeometry(5000, 0.1, 2200);
-const skyMaterial = new THREE.MeshBasicMaterial({color: 0xaecbe8});
-const sky = new THREE.Mesh(skyGeometry, skyMaterial);
-sky.position.y = 15.0;
-sky.rotation.x = -0.016;
-scene.add(sky);
-
-loadTexture(
-  `${import.meta.env.BASE_URL}/textures/skytile1.png`,
-  (tex) => {
-	tex.wrapS = THREE.RepeatWrapping;
-	tex.wrapT = THREE.RepeatWrapping;
-	tex.repeat.set(20, 8);
-	skyMaterial.map = tex;
-	skyMaterial.color = new THREE.Color(0xffffff);
-	skyMaterial.needsUpdate = true;
-  }
-);
-
-// Far walls
-// const wallGeometry = new THREE.BoxGeometry(2200, 2200, 0.1);
-// const wallMaterial = new THREE.MeshBasicMaterial({map: skyTexture});
-// const wall = new THREE.Mesh(wallGeometry, wallMaterial);
-// wall.position.y = - 1100 + 15
-// wall.position.z = -200;
-// scene.add(wall);
-
-// Pillars
-const pillarGeometry = new THREE.CylinderGeometry(0.5*pillarDiameter, 0.5*pillarDiameter, pillarHeight, 16);
-const pillarMaterial = new THREE.MeshLambertMaterial({color: 0x41342e});
-const pillar = [];
-for (let i = -1; i <= 1; ++i) {
-    const p = new THREE.Mesh(pillarGeometry, pillarMaterial);
-    p.position.x += pillarDistance*i;
-    scene.add(p);    
-    pillar.push(p);
-}
-
-loadTexture(
-  `${import.meta.env.BASE_URL}/textures/Wood051/Wood051_1K-JPG_Color.jpg`,
-  (tex) => {
-	tex.wrapS = THREE.RepeatWrapping;
-	tex.wrapT = THREE.RepeatWrapping;
-	tex.repeat.set(2, 1);
-	pillarMaterial.map = tex;
-	pillarMaterial.color = new THREE.Color(0xcfcfcf);
-	pillarMaterial.needsUpdate = true;
-  }
-);
-
-// discs
-const discColors = [
-    0xe69f00, 0x56b4e9, 0x009e73, 0xf0e442, 0x0072b2, 0xd55e00, 0xcc79a7
-];
-
-const discs = [];
-for (let i = 0; i < numDiscs.value; ++i) {
-    const radius = 0.4 + 0.1 * i;
-    const geometry = new THREE.CylinderGeometry(radius, radius, 0.2, 32);
-    const material = new THREE.MeshLambertMaterial({color: discColors[i % 7]});
-    const d = new THREE.Mesh(geometry, material);
-    d.position.x = -pillarDistance;
-    d.position.y = -0.5*pillarHeight + discThickness*(numDiscs.value - i - 1 + 0.5);
-    scene.add(d);
-    discs.push(d);
-}
-
-loadTexture(
-  `${import.meta.env.BASE_URL}/textures/Travertine009/Travertine009_1K-JPG_Color.jpg`,
-  (tex) => {
-	tex.wrapS = THREE.RepeatWrapping;
-	tex.wrapT = THREE.RepeatWrapping;
-	tex.repeat.set(2, 2);
-
-	discs.forEach((d) => {
-		(d.material as THREE.MeshLambertMaterial).map = tex;
-		(d.material as THREE.MeshLambertMaterial).needsUpdate = true;
-	}
-	);
-});
-
-// Camera position
-// normal
-camera.position.z = cameraZ;
-camera.position.y = 1;
-// close view
-// camera.position.z = 4;
-// camera.position.y = 3;
-// camera.rotation.x = -0.5;
 
 let step = 0;
-let errorLine = -1;
 
 let rafId: number | null = null;
 
 function animate() {
+    if (!three) return;
+
     rafId = requestAnimationFrame(animate)
 
     // Motion
     if (playMode.value) {
+        const pillarDistance = three.layout.pillarDistance;
+        const pillarHeight = three.layout.pillarHeight;
+        const discThickness = three.layout.discThickness;
+        const hoverHeight = 0.5 * three.layout.pillarHeight + 3 * three.layout.discThickness > 1.8 ? 0.5 * three.layout.pillarHeight + 3 * three.layout.discThickness : 1.8;
         const animStep = Math.floor(step / (3 * animNumSteps));
         const animStartStep = animStep * (3 * animNumSteps);
         if (!compiledResult) {
             compiledResult = compileHanoiMotions(motionCommands.value, numDiscs.value);
         }
-        const finalStep = compiledResult.firstErrorLine !== null ? compiledResult.firstErrorLine : compiledResult.motions.length;
+        const finalStep = compiledResult.stopAfterMotions;
         currentMotionStep.value = animStep + 1 >= compiledResult.motions.length ? compiledResult.motions.length : animStep + 1;
         if (animStep >= finalStep) {
             playMode.value = false;
             finished.value = true;
-            // console.timeEnd('Execution Time');
         } else {
             finished.value = false;
-            const disc = discs[compiledResult.motions[animStep].discId];
+            const discId = compiledResult.motions[animStep].discId;
+
             const startX = pillarDistance * (compiledResult.motions[animStep].fromPillar - 1);
             const startHeight = -0.5*pillarHeight + discThickness * (compiledResult.motions[animStep].fromLevel + 0.5);
             const endX = pillarDistance * (compiledResult.motions[animStep].toPillar - 1);
@@ -659,40 +474,31 @@ function animate() {
             if (step - animStartStep < animNumSteps) {
 				// move up
                 const height = startHeight + (hoverHeight - startHeight) * (step - animStartStep) / animNumSteps;
-                disc.position.x = startX;
-                disc.position.y = height;
+                three.setDiscPosition(discId, startX, height);
             }
             else if (step - animStartStep < 2 * animNumSteps) {
 				// move horizontally
                 const x = startX + (endX - startX) * ((step - animStartStep) - animNumSteps) / animNumSteps;
-                disc.position.x = x;
-                disc.position.y = hoverHeight;
+                three.setDiscPosition(discId, x, hoverHeight);
             }
             else if (step - animStartStep < 3 * animNumSteps) {
 				// move down
                 const height = endHeight + (hoverHeight - endHeight) * (3 * animNumSteps - (step - animStartStep)) / animNumSteps;
-                disc.position.x = endX;
-                disc.position.y = height;
+                three.setDiscPosition(discId, endX, height);
             }
 
             ++step;
         }
     }
 
-    renderer.render(scene, camera);
+    three.render();
 }
 
 function onResize()
 {
+    if (!three) return;
     const width = document.getElementById("controllerBox")!.scrollWidth;
     const height = width / 16 * 9;
-
-    // レンダラーのサイズを調整する
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.setSize(width, height);
-
-  // カメラのアスペクト比を正す
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
+    three.resize(width, height);
 }
 </script>

@@ -18,7 +18,15 @@ const messages = {
             pause: 'Pause',
             moveIfError: 'Move until error',
             step: 'Step',
-            screenshot: 'Take screenshot'
+            screenshot: 'Take screenshot',
+            // modal
+            settings: 'Settings',
+            discs: 'Discs',
+            theme: 'Theme',
+            light: 'Light',
+            dark: 'Dark',
+            system: 'System',
+            close: 'Close'
         },
     },
     ja: {
@@ -32,7 +40,15 @@ const messages = {
             pause: '一時停止',
             moveIfError: 'エラーの場所まで実行',
             step: 'ステップ',
-            screenshot: '画像を保存'
+            screenshot: '画像を保存',
+            // modal
+            settings: '設定',
+            discs: '円盤数',
+            theme: 'テーマ',
+            light: 'ライト',
+            dark: 'ダーク',
+            system: 'システム',
+            close: '閉じる'
         },
     }
 };

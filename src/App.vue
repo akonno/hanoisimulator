@@ -1,23 +1,27 @@
 <!-- App.vue - hanoisimulator app -->
 <template>
 	<div v-cloak>
-		<section class="hero">
-			<div class="hero-body">
-				<div class="select is-small is-pulled-right">
-					<select id="selectLocale" v-model="selectedLocale" @change="switchLocale">
-						<option disabled value="">Language</option>
-						<option value="en">English</option>
-						<option value="ja">Japanese / 日本語</option>
-					</select>
-				</div>
+		<nav class="navbar">
+			<div class="navbar-brand">
+                <a class="navbar-item" href="#">
 				<h1 class="title">
 				{{ $t("message.hanoisimulatortitle") }}
-				</h1>
-				<p class="subtitle">
-					{{ $t("message.hanoisimulatordesc") }}
-				</p>
-			</div>
-		</section>
+				</h1></a>
+                <a class="navbar-burger" :class="{ 'is-active': isBurgerActive }" role="button" aria-label="menu" aria-expanded="false" @click="isBurgerActive=!isBurgerActive">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+            <div class="navbar-menu" :class="{ 'is-active' : isBurgerActive }">
+                <div class="navbar-end">
+                    <a class="navbar-item" href="about.html" target="_blank" rel="noopener noreferrer"><span class="icon-text"><span class="icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span><span>About</span></span></a>
+                    <a class="navbar-item" href="for-instructors.html" target="_blank" rel="noopener noreferrer"><span class="icon-text"><span class="icon"><i class="fa-solid fa-arrow-up-right-from-square"></i></span><span>For instructors</span></span></a>
+                    <button class="navbar-item" @click="toggleSettingsModal"><span class="icon-text"><span class="icon"><i class="fa-solid fa-gear"></i></span><span>Settings</span></span></button>
+                </div>
+            </div>
+		</nav>
 		<section class="section">
 			<div class="field is-grouped">
 				<div class="control">
@@ -103,6 +107,86 @@
 			</p>
 		</div>
 	</footer>
+    <!-- modal -->
+     <div class="modal" :class="{ 'is-active': isSettingsModalActive }">
+        <div class="modal-background" @click="isSettingsModalActive = false;"></div>
+        <div class="modal-content">
+            <!-- Any other Bulma elements you want -->
+            <div class="box">
+                <h2 class="subtitle">{{ $t("message.settings") }}</h2>
+                <div class="field is-grouped">
+                    <label class="label"><span class="icon-text"><span class="icon"><i class="fas fa-layer-group"></i></span><span>{{ $t("message.discs") }}</span></span></label>
+                    <div class="select">
+                        <select v-model.number="numDiscs" @change="setNumDiscs(numDiscs)">
+                            <option v-for="n in [5, 6, 7, 8, 9, 10]" :key="n" :value="n">{{ n }}</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field is-grouped">
+                    <label class="label"><span class="icon-text"><span class="icon"><i class="fas fa-desktop"></i></span><span>{{ $t("message.theme") }}</span></span></label>
+                    <div class="control">
+                        <label class="radio">
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="light"
+                            v-model="selectedTheme"
+                            @change="setScreenMode(selectedTheme)"
+                        />
+                        <span class="icon-text"><span class="icon"><i class="fas fa-sun"></i></span><span>{{ $t("message.light") }}</span></span>
+                        </label>
+                        <label class="radio">
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="dark"
+                            v-model="selectedTheme"
+                            @change="setScreenMode(selectedTheme)"
+                        />
+                        <span class="icon-text"><span class="icon"><i class="fas fa-moon"></i></span><span>{{ $t("message.dark") }}</span></span>
+                        </label>
+                        <label class="radio">
+                        <input
+                            type="radio"
+                            name="theme"
+                            value="system"
+                            v-model="selectedTheme"
+                            @change="setScreenMode(selectedTheme)"
+                        />
+                        <span class="icon-text"><span class="icon"><i class="fas fa-desktop"></i></span><span>{{ $t("message.system") }}</span></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="field is-grouped">
+                    <label class="label"><span class="icon-text"><span class="icon"><i class="fas fa-language"></i></span><span>Language</span></span></label>
+                    <div class="control">
+                        <label class="radio">
+                        <input
+                            type="radio"
+                            name="lang"
+                            value="en"
+                            v-model="selectedLocale"
+                            @change="locale = selectedLocale"
+                        />
+                        English
+                        </label>
+                        <label class="radio">
+                        <input
+                            type="radio"
+                            name="lang"
+                            value="ja"
+                            v-model="selectedLocale"
+                            @change="locale = selectedLocale"
+                        />
+                        Japanese / 日本語
+                        </label>
+                    </div>
+                </div>
+                <button class="button is-primary" @click="isSettingsModalActive = false;">{{ $t("message.close") }}</button>
+            </div>
+        </div>
+        <button class="modal-close is-large" aria-label="close" @click="isSettingsModalActive = false;"></button>
+     </div>
 </template>
 
 <style scoped>
@@ -139,42 +223,12 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+// Components
+// import Footer from 'components/Footer.vue';
 
 import * as THREE from 'three';
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch, h } from 'vue';
 import { useI18n } from 'vue-i18n';
-
-// Vue I18n
-const messages = {
-    en: {
-        message: {
-            hanoisimulatortitle: 'The Tower of Hanoi Simulator',
-            hanoisimulatordesc: 'Here is the Hanoi Tower Simulator (Web version). Instructions are at the bottom of the page.',
-            controller: 'Controller',
-            motioncommands: 'Motion commands',
-            reset: 'Reset',
-            play: 'Run simulation',
-            pause: 'Pause',
-            moveIfError: 'Move until error',
-            step: 'Step',
-            screenshot: 'Take screenshot'
-        },
-    },
-    ja: {
-        message: {
-            hanoisimulatortitle: 'ハノイの塔シミュレータ',
-            hanoisimulatordesc: 'ハノイの塔シミュレータ（Web版）です．使い方は画面の下部にあります．',
-            controller: 'シミュレータ制御',
-            motioncommands: '動作指示',
-            reset: '最初に戻る',
-            play: '実行',
-            pause: '一時停止',
-            moveIfError: 'エラーの場所まで実行',
-            step: 'ステップ',
-            screenshot: '画像を保存'
-        },
-    }
-};
 
 const { locale } = useI18n();
 
@@ -187,7 +241,45 @@ const currentMotionStep = ref(0);
 const numTotalSteps = ref(0);
 const finished = ref(false);
 const motionCommands = ref("A,B\nA,C\nB,C\nA,B\nC,A\nC,B\nA,B");
-const selectedLocale = ref('');
+const selectedLocale = ref(locale.value);
+const selectedTheme = ref('system');
+
+const isBurgerActive = ref(false);
+const isSettingsModalActive = ref(false);
+
+function toggleSettingsModal()
+{
+    isSettingsModalActive.value = !isSettingsModalActive.value;
+}
+
+function setNumDiscs(n: number)
+{
+    let url = new URL(window.location.href);
+    url.searchParams.set('numDiscs', n.toString());
+    window.location.href = url.toString();
+}
+
+// 初期設定：localStorageから取得したテーマを使い、即座に`data-theme`に反映させる
+const initialTheme = localStorage.getItem('theme') || 'system';
+document.documentElement.setAttribute('data-theme', initialTheme); // 初期テーマを適用
+const theme = ref(initialTheme);
+
+const setScreenMode = (mode_: string) => {
+    // Screen mode
+    if (mode_ == 'light' || mode_ == 'dark' || mode_ == 'system') {
+        document.documentElement.setAttribute('data-theme', mode_);
+        theme.value = mode_;
+        // Save the theme to localStorage
+        // localStorage.setItem('theme', mode_);
+    } else {
+        console.error(`error: unsupported screen mode ${mode_} is specified.`);
+    }
+}
+
+// テーマが変わるたびに`data-theme`属性を更新する
+watch(theme, (newTheme: string) => {
+    document.documentElement.setAttribute('data-theme', newTheme);
+});
 
 function play()
 {
@@ -262,12 +354,6 @@ function takeScreenShot()
 	a.href = renderer.domElement.toDataURL().replace("image/png", "image/octet-stream");
 	a.download = 'screenshot.png';
 	a.click();
-}
-
-function switchLocale()
-{
-	locale.value = selectedLocale.value;
-	console.log('locale is changed to ', locale.value);
 }
 
 function isWebGLAvailable(): boolean {

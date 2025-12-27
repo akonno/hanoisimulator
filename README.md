@@ -1,20 +1,52 @@
 # Hanoi Simulator
 
-A Tower of Hanoi simulator for teachers to teach the concept of recursion
+A web-based simulator designed to support teaching recursion
+through the Tower of Hanoi problem.
 
 ## Simulator website
 
 [Hanoi Simulator](https://akonno.github.io/hanoisimulator/) (GitHub Pages)
 
-You can use the simulator at the given address.
+The simulator can be used directly in a web browser.
+No installation is required.
 
-## For whom is it intended?
+## Intended audience
 
-This simulator was developed for teachers who teach programming.
+This simulator is intended primarily for **instructors teaching programming**,
+especially when introducing the concept of **recursive calls**.
 
-Suppose you are a teacher instructing programming and want to teach your students about the concept of recursive calls. You might want them to solve the famous puzzle '[Tower of Hanoi](https://en.wikipedia.org/wiki/Tower_of_Hanoi)', which utilizes the idea of recursion. However, while you can teach the concept of the Tower of Hanoi, it might be challenging to make the class appealing to students who are just beginning to learn programming, as replicating the movement of discs in the Tower of Hanoi on a screen requires extensive knowledge beyond just recursion.
+The Tower of Hanoi is a well-known puzzle that naturally lends itself
+to recursive solutions. However, implementing a visual representation
+of the puzzle often requires programming knowledge beyond recursion itself,
+which can be a distraction for beginners.
 
-This 'Hanoi Simulator' is a program that moves the discs of the 'Tower of Hanoi' according to given instructions. The simulator itself does not have the functionality to solve the Tower of Hanoi puzzle. (However, it does come with initial instructions to move three discs.) You will have your students write a program that outputs instructions for moving the discs in the Tower of Hanoi. Then, by executing these outputs in this simulator, you can visually confirm through animation whether the 'Tower of Hanoi' has been solved correctly.
+Hanoi Simulator addresses this gap by providing a visual execution
+environment for the puzzle.
+
+## What this simulator does (and does not do)
+
+- This simulator **does not solve the Tower of Hanoi puzzle by itself**.
+- Instead, it **executes a sequence of move instructions provided by the user**
+  and visualizes each step.
+- If the instruction sequence contains errors, they are detected and reported.
+
+In a typical classroom setting, students write a program that outputs
+a sequence of instructions for moving the disks.
+By pasting those instructions into the simulator, instructors and students
+can visually verify whether the solution is correct.
+
+For demonstration purposes, the simulator is preloaded with
+a sample instruction sequence for the three-disk problem.
+
+## Documentation
+
+- **About**  
+  Overview of the simulator design, educational intent, and basic concepts.  
+  https://akonno.github.io/hanoisimulator/about.html
+
+- **For instructors**  
+  Teaching notes, classroom usage examples, and practical guidance for instructors.  
+  https://akonno.github.io/hanoisimulator/for-instructors.html
 
 ## License
 
@@ -22,4 +54,5 @@ This 'Hanoi Simulator' is a program that moves the discs of the 'Tower of Hanoi'
 
 ## Credits
 
-- Textures for the floor, discs and pillars by [Lennart Demes at ambientCG](https://ambientcg.com/)
+- Textures for the floor, disks, and pillars by
+  [Lennart Demes at ambientCG](https://ambientcg.com/)

@@ -17,57 +17,137 @@
             </div>
         </section>
         <section class="section">
-            <!-- <div class="block"> -->
-                <h3 class="subtitle">Purpose of the simulator</h3>
-                <p class="content">
-                    This simulator was developed for instructors who teach programming.
+            <div class="content">
+                <p>
+                    This simulator runs move commands and visualizes the result; it does not solve the puzzle. Students generate commands with their own programs, and instructors verify correctness visually.
                 </p>
-                <p class="content">
-                    Suppose you are an instructor teaching programming and want to teach your students about the concept of recursive calls. You might want them to solve the famous puzzle '<a href="https://en.wikipedia.org/wiki/Tower_of_Hanoi" target="_blank" rel="noopener noreferrer">Tower of Hanoi</a>', which utilizes the idea of recursion. However, while you can teach the concept of the Tower of Hanoi, it might be challenging to make the class appealing to students who are just beginning to learn programming, as replicating the movement of discs in the Tower of Hanoi on a screen requires extensive knowledge beyond just recursion.
-                </p>
-                <p class="content">
-                    This 'Hanoi Simulator' is a program that moves the discs of the 'Tower of Hanoi' according to given instructions. The simulator itself does not have the functionality to solve the Tower of Hanoi puzzle. (However, it does come with initial instructions to move three discs.) You will have your students write a program that outputs instructions for moving the discs in the Tower of Hanoi. Then, by executing these outputs in this simulator, you (and your students) can visually confirm through animation whether the 'Tower of Hanoi' has been solved correctly.
-                </p>
-                <h3 class="subtitle">Using the simulator in classrooms</h3>
-                <p class="content">
-                    In the class, students will output a set of instructions to move the discs of the Tower of Hanoi using their own programs. They will then copy and paste these instructions into the Hanoi Simulator to solve the Tower of Hanoi puzzle.
-                    Instructors can quickly verify the result visually (e.g., via an on-screen state or a screenshot).
-                </p>
-            <!-- </div> -->
-            <!-- <div class="block"> -->
-                <h2 class="subtitle">How to change the number of discs</h2>
-                <p class="content">If you want students to attempt puzzles with more or fewer discs, you can set the number of discs by specifying it in the "numDiscs" URL parameter.</p>
-                <ul class="content">
-                    <li><a href="./?numDiscs=5">5 discs</a></li>
-                    <li><a href="./?numDiscs=6">6 discs</a></li>
-                    <li><a href="./?numDiscs=7">7 discs</a> (default)</li>
-                    <li><a href="./?numDiscs=8">8 discs</a></li>
-                    <li><a href="./?numDiscs=9">9 discs</a></li>
-                    <li><a href="./?numDiscs=10">10 discs</a></li>
-                </ul>
-            <!-- </div> -->
-            <p class="content">
-                Note that moving a large number of discs took a significant amount of time. In my environment, transferring 7 discs from one pillar to another took over 6 minutes, and moving 10 discs required more than 51 minutes.
-                This is expected because the required number of moves grows exponentially with the number of discs.
+            </div>
+
+            <div class="content">
+            <h2 class="subtitle">Purpose and classroom usage</h2>
+
+            <p>
+                This simulator is designed for programming courses where students
+                generate a sequence of move commands for the Tower of Hanoi using
+                their own programs.
             </p>
+
+            <p>
+                The simulator <strong>does not solve the puzzle automatically</strong>.
+                Instead, it executes student-generated commands and visualizes the result,
+                allowing instructors to verify correctness efficiently.
+            </p>
+
+            <p>
+                In typical classroom use, students paste their command output into the simulator,
+                and instructors confirm the result visually (e.g., by checking the final state
+                on screen or a submitted screenshot).
+            </p>
+
+            <h2 class="subtitle">Typical classroom usage</h2>
+            <p>
+            This section describes common instructional patterns when using the simulator in programming courses.
+            </p>
+            <ul>
+            <li>
+                <strong>Baseline task:</strong> Use 7 discs as the standard requirement.
+            </li>
+            <li>
+                <strong>Bonus / advanced task:</strong> Encourage students to try
+                8 or more discs for additional credit.
+            </li>
+            <li>
+                <strong>Optional challenge:</strong> Allow highly motivated students
+                to attempt up to 10 discs, with appropriate time considerations.
+            </li>
+            </ul>
+
+            <p>
+            Because the required number of moves grows exponentially,
+            simulations with a larger number of discs may take a long time to complete.
+            In one reference environment, transferring 7 discs required over 6 minutes,
+            while 10 discs required more than 50 minutes.
+            </p>
+
+            <p class="is-size-7 has-text-grey">
+            In classroom settings, instructors may verify submissions by checking that the simulation runs without errors and reaches the correct final configuration (often via a screenshot), rather than waiting for the full animation to finish in real time.
+            </p>
+
+            <h2 class="subtitle">Difficulty control (number of discs)</h2>
+
+            <p>
+            The difficulty of the Tower of Hanoi task can be adjusted by changing
+            the number of discs. Increasing the number of discs significantly
+            increases the number of required moves.
+            </p>
+
+            <h3 class="subtitle is-6">Changing the number of discs</h3>
+
+            <p>
+            The number of discs can be changed from the <strong>Settings</strong> menu
+            (top right of the simulator screen).
+            The available range is from <strong>5 to 10 discs</strong>,
+            with <strong>7 discs</strong> as the default.
+            </p>
+
+            <p>
+            This allows instructors to control the task difficulty without changing
+            the assignment itself.
+            </p>
+
+            <h3 class="subtitle is-6">Advanced: Using URL parameters</h3>
+
+            <p>
+            As an alternative, the number of discs can also be specified
+            using the <code>numDiscs</code> URL parameter.
+            This may be useful when distributing fixed links to students.
+            </p>
+
+            <ul>
+            <li><a href="./?numDiscs=5">5 discs</a></li>
+            <li><a href="./?numDiscs=6">6 discs</a></li>
+            <li><a href="./?numDiscs=7">7 discs</a> (default)</li>
+            <li><a href="./?numDiscs=8">8 discs</a></li>
+            <li><a href="./?numDiscs=9">9 discs</a></li>
+            <li><a href="./?numDiscs=10">10 discs</a></li>
+            </ul>
+
+            <p class="is-size-7 has-text-grey">
+            The Settings menu is the recommended way to change the number of discs
+            during normal classroom use.
+            </p>
+            <p class="is-size-7 has-text-grey">
+            The <code>numDiscs</code> parameter does not impose a strict upper limit.
+            However, because the required number of moves grows exponentially,
+            simulations with values far beyond the intended classroom range
+            will not complete within a realistic amount of time.
+            For example, increasing the disc count by only a few can extend
+            the required execution time from minutes to days or longer.
+            </p>
+            <p class="is-size-7 has-text-grey">
+            This behavior can itself serve as a concrete demonstration
+            of exponential growth in algorithmic complexity.
+            </p>
+
+        </div>
 		</section>
         <section class="section">
-        <div class="block">
+        <div class="box">
             <h2 class="subtitle">Optional Support</h2>
-            <p class="content">
+            <p>
             This simulator is provided freely for educational use.
             </p>
-            <p class="content">
+            <p>
             If you find it useful in your teaching and would like to support the author’s work on open educational tools, you may do so here:
             <a class="button is-small" href="https://ko-fi.com/akonno" target="_blank" rel="noopener noreferrer">Ko-fi</a>.
             </p>
-            <p class="content is-size-7">
+            <p class="is-size-7">
             Support is entirely optional and not required to use this simulator in any classroom setting. It does not imply additional features, services, or obligations.
             </p>
         </div>
         </section>
         <section class="section">
-            <div class="block">
+            <div class="content">
                 <h2 class="subtitle">Source and Credit</h2>
                 <p>Source: <a href="https://github.com/akonno/hanoisimulator" target="_blank" rel="noopener noreferrer">Hanoi Simulator</a> on <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a></p>
                 <p>Textures for the floor, discs and pillars by <a href="https://ambientcg.com/" target="_blank" rel="noopener noreferrer">Lennart Demes at ambientCG</a></p>

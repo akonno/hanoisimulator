@@ -17,9 +17,28 @@
             </div>
         </section>
         <section class="section">
-            <div class="block">
-                <h2 class="subtitle">What is the tower of Hanoi?</h2>
-                <p class="content">
+            <div class="content">
+                <p>
+                This page explains how to use the Hanoi Simulator and provides background
+                information about the Tower of Hanoi.
+                </p>
+
+                <p>
+                In this simulator, you are expected to <strong>prepare a sequence of move
+                commands yourself</strong> and execute them to check whether your solution is correct.
+                The simulator does not automatically solve the puzzle.
+                </p>
+
+                <p class="is-size-7 has-text-grey">
+                If the Tower of Hanoi has already been explained in class, you may skip the
+                reference section below and proceed directly to the usage instructions.
+                </p>
+            </div>
+		</section>
+        <section class="section">
+            <div class="content">
+                <h2 class="subtitle">Reference: What is the Tower of Hanoi?</h2>
+                <p>
                     <a href="https://en.wikipedia.org/wiki/Tower_of_Hanoi" target="_blank" rel="noopener noreferrer">From Wikipedia, the free encyclopedia</a>:
                 </p>
                 <blockquote class="content is-italic">
@@ -31,25 +50,85 @@
                     </ol>
                 </blockquote>
             </div>
-            <div class="block">
-                <h2 class="subtitle">How to simulate the tower of Hanoi</h2>
-                <p class="content">
-                    The Tower of Hanoi consists of three pillars and multiple discs. The pillars are named A, B, and C, from left to right. Initially, all the discs are placed on pillar A.
-                </p>
-                <img src="./assets/img/screen-en.png" alt="[Simulator Screen]" />
-                <p class="content">
-                    The instructions for moving the discs are simple. Write one line of instruction to move a disc once. To move the top disc from pillar A to the top of pillar B, write "A,B." For moving the top disc from pillar B to the top of pillar C, write "B,C." By entering these instructions in the "Motion commands" text area, you can specify the movements of the discs.
-                </p>
-                <p class="content">
-                    After completing the instruction entry, click the "Run commands" button to initiate the animation (this button will then change to the "Pause" button). Alternatively, you can start the animation by clicking on the Tower of Hanoi screen. To pause the animation, either click the "Pause" button or click on the animation screen once more.
-                </p>
-                <p class="content">
-                    When the animation is paused, you can save a screenshot of the animation screen by pressing the "Take screenshot" button.
-                </p>
-            </div>
 		</section>
         <section class="section">
-            <div class="block">
+        <div class="content">
+            <h2 class="subtitle">Usage: Run move commands</h2>
+
+            <p>
+            The Tower of Hanoi consists of three pillars and multiple discs.
+            The pillars are named A, B, and C from left to right.
+            Initially, all discs are placed on pillar A.
+            </p>
+
+            <img src="./assets/img/screen-en.png" alt="[Simulator Screen]" />
+
+            <h3 class="subtitle is-6">Move command format</h3>
+
+            <p>
+            Write <strong>one move per line</strong>.
+            Each line specifies how to move the <em>top disc</em> from one pillar to another.
+            </p>
+
+            <ul>
+            <li><strong>Format:</strong> <code>A,B</code> (move the top disc from A to B)</li>
+            <li><strong>Another example:</strong> <code>B,C</code></li>
+            <li>Uppercase / lowercase letters are both accepted.</li>
+            <li>Spaces around letters and commas are allowed.</li>
+            <li><strong>Empty or blank lines are not allowed</strong> and will result in an error.</li>
+            <li>Text after <code>#</code> is treated as a comment.</li>
+            <li><strong>Trailing commas are not allowed</strong> (e.g. <code>A,B,</code> is invalid).</li>
+            </ul>
+
+            <p class="is-size-7 has-text-grey">
+            Note: You can also use <code>1,2,3</code> instead of <code>A,B,C</code>.
+            This is optional; using <code>A,B,C</code> is recommended for clarity.
+            </p>
+
+            <h3 class="subtitle is-6">Running the simulation</h3>
+
+            <ul>
+            <li>
+                Click <strong>Run Simulation</strong> to start the simulation.
+                If an error is found, the button turns red and shows
+                <strong>Move until error</strong>.
+            </li>
+            <li>
+                Click <strong>Move until error</strong> to run the simulation
+                up to the point where the error occurs.
+                The error line and its type are displayed.
+            </li>
+            <li>
+                You can also start or pause the simulation by clicking
+                directly on the Tower of Hanoi screen.
+            </li>
+            <li>
+                When the simulation is paused, click
+                <strong>Take screenshot</strong> to save the current view.
+            </li>
+            </ul>
+
+            <p class="is-size-7 has-text-grey">
+            The text area initially contains a small example (3 discs) for demonstration.
+            Replace it with the output generated by your own program.
+            </p>
+
+            <h3 class="subtitle is-6">Settings</h3>
+            <p>
+            The simulator provides a Settings menu (top right) where you can adjust:
+            </p>
+            <ul>
+                <li>the number of discs (default: 7)</li>
+                <li>the screen theme (light / dark / system)</li>
+                <li>the display language (English / Japanese)</li>
+            </ul>
+            <p>
+            Please follow your instructor’s instructions when changing these settings.
+            </p>
+        </div>
+        </section>
+        <section class="section">
+            <div class="content">
                 <h2 class="subtitle">Source and Credit</h2>
                 <p>Source: <a href="https://github.com/akonno/hanoisimulator" target="_blank" rel="noopener noreferrer">Hanoi Simulator</a> on <a href="https://github.com/" target="_blank" rel="noopener noreferrer">GitHub</a></p>
                 <p>Textures for the floor, discs and pillars by <a href="https://ambientcg.com/" target="_blank" rel="noopener noreferrer">Lennart Demes at ambientCG</a></p>

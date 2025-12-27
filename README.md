@@ -31,12 +31,12 @@ environment for the puzzle.
 - If the instruction sequence contains errors, they are detected and reported.
 
 In a typical classroom setting, students write a program that outputs
-a sequence of instructions for moving the disks.
+a sequence of instructions for moving the discs.
 By pasting those instructions into the simulator, instructors and students
 can visually verify whether the solution is correct.
 
 For demonstration purposes, the simulator is preloaded with
-a sample instruction sequence for the three-disk problem.
+a sample instruction sequence for the three-disc problem.
 
 ## Documentation
 
@@ -54,5 +54,5 @@ a sample instruction sequence for the three-disk problem.
 
 ## Credits
 
-- Textures for the floor, disks, and pillars by
+- Textures for the floor, discs, and pillars by
   [Lennart Demes at ambientCG](https://ambientcg.com/)
